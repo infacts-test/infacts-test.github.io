@@ -283,7 +283,7 @@ var give_scripts = {"ajaxurl":"http:\/\/danielpomlett.com\/infacts\/wp-admin\/ad
                             <input id="postcode" type="text" class="form-control" placeholder="SW1A 0AA"></input>
                             <button  id="postcodebutton" type="button" class="form-control">lookup</button>
 							<label>or by constituency</label>
-							  <input id="constituency" type="text" name="constituency" placeholder="type constituency name" class="form-control" data-minchars=1  data-maxitems=20/>
+							  <input id="constituency" type="text" name="constituency" placeholder="type constituency name" class="form-control" data-minchars=1  data-maxitems=20 data-autofirst />
 							<select name="constituency" class="select" id="oldconstituency" style="display:none">
 							  <option value="" disabled selected>Choose your constituency</option>
 							</select>
@@ -1320,9 +1320,13 @@ jQuery(document).ready(function() {
 
     });
     jQuery(document).on('keypress', '#postcode', function(e) {
-
         if ( e.keyCode == 13 ) {  // detect the enter key
             jQuery('#postcodebutton').click(); // click lookup
+        }
+    });
+    jQuery(document).on('keypress', '#constituency', function(e) {
+        if ( e.keyCode == 13 ) {  // detect the enter key
+            updatePage(); // click lookup
         }
     });
 });
