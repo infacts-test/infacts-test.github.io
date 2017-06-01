@@ -1284,9 +1284,6 @@ var SPEAKER = "Speaker";
 var decisions;
 jQuery(document).ready(function() {
     'use strict';
-//  jQuery.getJSON("constituencies.json", function(cons) {
-//    console.log(cons); // this will show the info it in firebug console
-//var constituencies = cons;
 
     jQuery.getJSON(URL+"/js/recommendations.json", function(recomms) {
     decisions = recomms;
@@ -1301,14 +1298,8 @@ jQuery(document).ready(function() {
     jQuery('#constituency').on('change', updatePage);
     function updatePage(){
         var selectedConstituency = jQuery('#constituency').val();
-        var pageUrl = window.location.href;
-        if(pageUrl.indexOf('#mobileWrapper') !== -1){
-            var pageUrl = pageUrl.replace("#mobileWrapper", "");
-        }
-        if(pageUrl.indexOf('#mobileclosed') !== -1){
-            var pageUrl = pageUrl.replace("#mobileclosed", "");
-        }
-        window.location.href = pageUrl+"/how-should-i-vote-to-stop-a-destructive-brexit?CON="+selectedConstituency;
+        var newUrl = "how-should-i-vote-to-stop-a-destructive-brexit?CON="+selectedConstituency;
+        window.location.href = newUrl;
     }
 });
 
