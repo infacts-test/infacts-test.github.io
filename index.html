@@ -276,9 +276,13 @@ var give_scripts = {"ajaxurl":"http:\/\/danielpomlett.com\/infacts\/wp-admin\/ad
 					<div class="half">
 						<div class="innerPadding">
 							<h2>How should you vote?</h2>
-							<select name="constituency" class="select" id="constituency">
+<label>lookup postcode</label>
+<input id="postcode" type="text" class="form-control" placeholder="SW1A 0AA"></input>
+<button  id="postcodebutton" type="button">lookup</button>
+							<select name="constituency" class="select" id="oldconstituency">
 							  <option value="" disabled selected>Choose your constituency</option>
 							</select>
+							  <input id="constituency" name="constituency" class="form-control" list="conslist"   data-minchars=1  data-maxitems=20/>
 							<div class="voteDisclaimer">Recommendations only for England and Wales.</div>
 							<div class="clear"></div>
 						</div>
@@ -1283,27 +1287,57 @@ var UUP = "Ulster Unionist Party";
 var SPEAKER = "Speaker";
 
 var decisions;
+function updatePage(){
+    var selectedConstituency = jQuery('#constituency').val();
+    var newUrl = "how-should-i-vote-to-stop-a-destructive-brexit?CON="+selectedConstituency;
+    window.location.href = newUrl;
+}
+
 jQuery(document).ready(function() {
     'use strict';
 
     jQuery.getJSON(URL+"/js/recommendations.json", function(recomms) {
-    decisions = recomms;
+        decisions = recomms;
 
-    var listitems = "";
-    jQuery.each(decisions, function(key, value) {
-        listitems += '<option>' + value.Constituency + '</option>';
+        var listitems = "";
+        jQuery.each(decisions, function(key, value) {
+            listitems += '<option>' + value.Constituency + '</option>';
+        });
+
+        jQuery("#constituency").append(listitems);
+
+        jQuery('#constituency').on('change', updatePage);
     });
+    jQuery(document).on('keypress', '#postcode', function(e) {
 
-    jQuery("#constituency").append(listitems);
-
-    jQuery('#constituency').on('change', updatePage);
-    function updatePage(){
-        var selectedConstituency = jQuery('#constituency').val();
-        var newUrl = "how-should-i-vote-to-stop-a-destructive-brexit?CON="+selectedConstituency;
-        window.location.href = newUrl;
-    }
+        if ( e.keyCode == 13 ) {  // detect the enter key
+            jQuery('#postcodebutton').click(); // click lookup
+        }
+    });
 });
 
+jQuery('#postcodebutton').on('click', function(event) {	
+    var postcodefield = document.getElementById("postcode");
+    var rawpostcode = postcodefield.value;
+    if (rawpostcode) {
+        postcodefield.value="";
+        postcodefield.placeholder = rawpostcode;
+    }
+    var postcode = encodeURIComponent(rawpostcode);
+	if (postcode) {
+        var url = "https://www.theyworkforyou.com/api/getConstituency?key=DwnyKLEYNfkFDDyRGAEsUE8a&output=js&postcode=" + postcode;
+        output = jQuery.getJSON( url, function(data) {
+            var constituency;
+            var const_data;
+            if(data.hasOwnProperty('error')){ 
+                alert('Error - I cannot recognise that postcode');
+            } else {
+                constituency = data.guardian_name;
+                document.getElementById("constituency").value=constituency;
+                updatePage();
+            }	
+        });
+    }
 });
 </script><script type='text/javascript'>
 /* <![CDATA[ */
