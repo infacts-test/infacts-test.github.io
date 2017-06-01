@@ -7,6 +7,8 @@
 		<title> InFacts Home - InFacts</title>
 		<link href='https://fonts.googleapis.com/css?family=Pathway+Gothic+One|Open+Sans:400,400italic,700,700italic|Montserrat:400,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" media="all" href="http://danielpomlett.com/infacts/wp-content/themes/InFacts/style.css?v=4.6" />
+        <link rel="stylesheet" href="awesomplete.css" />
+        <script src="awesomplete.min.js" async></script>
 		<!--[if lt IE 9]>
 			<link rel="stylesheet" type="text/css" media="all" href="http://danielpomlett.com/infacts/wp-content/themes/InFacts/css/ie_sheet.css" />
 			<link rel="stylesheet" type="text/css" media="all" href="http://danielpomlett.com/infacts/wp-content/themes/InFacts/ie_styles.css" />
@@ -274,15 +276,16 @@ var give_scripts = {"ajaxurl":"http:\/\/danielpomlett.com\/infacts\/wp-admin\/ad
 				<div class="innerMargin">
 				<div class="voteCheckerHome">
 					<div class="half">
-						<div class="innerPadding">
+						<div class="innerPadding"><style>.awesomplete {width:100%;}</style>
 							<h2>How should you vote?</h2>
-<label>lookup postcode</label>
-<input id="postcode" type="text" class="form-control" placeholder="SW1A 0AA"></input>
-<button  id="postcodebutton" type="button">lookup</button>
-							<select name="constituency" class="select" id="oldconstituency">
+                            <label>lookup by postcode</label>
+                            <input id="postcode" type="text" class="form-control" placeholder="SW1A 0AA"></input>
+                            <button  id="postcodebutton" type="button" class="form-control">lookup</button>
+							<label>or by constituency</label>
+							  <input id="constituency" type="text" name="constituency" placeholder="type constituency name" class="form-control" data-minchars=1  data-maxitems=20/>
+							<select name="constituency" class="select" id="oldconstituency" style="display:none">
 							  <option value="" disabled selected>Choose your constituency</option>
 							</select>
-							  <input id="constituency" name="constituency" class="form-control" list="conslist"   data-minchars=1  data-maxitems=20/>
 							<div class="voteDisclaimer">Recommendations only for England and Wales.</div>
 							<div class="clear"></div>
 						</div>
@@ -1300,13 +1303,20 @@ jQuery(document).ready(function() {
         decisions = recomms;
 
         var listitems = "";
+        var awesomelist=[];
         jQuery.each(decisions, function(key, value) {
             listitems += '<option>' + value.Constituency + '</option>';
+            awesomelist.push(value.Constituency);
         });
+        var conslist = document.getElementById("constituency");
+        var awesomplete = new Awesomplete(conslist);
+        awesomplete.list = awesomelist;
 
-        jQuery("#constituency").append(listitems);
+        jQuery("#oldconstituency").append(listitems);
 
+        jQuery('#oldconstituency').on('change', updatePage);
         jQuery('#constituency').on('change', updatePage);
+
     });
     jQuery(document).on('keypress', '#postcode', function(e) {
 
