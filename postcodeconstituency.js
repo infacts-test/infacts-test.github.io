@@ -19,6 +19,7 @@ function postcodetocons(event) {
             } else {
                 constituency = panotoname[data.pa_id];
                 document.getElementById("constituency").value=constituency;
+                document.getElementById("constituency2").value = constituency;
                 updatePage();
             }	
         });
@@ -43,11 +44,9 @@ function listfromrecommendations(recomms) {
         var conslist = document.getElementById("constituency");
         var awesomplete = new Awesomplete(conslist);
         awesomplete.list = awesomelist;
-
-        jQuery("#oldconstituency").append(listitems);
-
-        jQuery('#oldconstituency').on('change', updatePage);
+        jQuery('#constituency').on('awesomplete-selectcomplete', updatePage);        
         jQuery('#constituency').on('change', updatePage);
+
         jQuery(document).on('keypress', '#postcode', function(e) {
             if ( e.keyCode == 13 ) {  // detect the enter key
                 jQuery('#postcodebutton').click(); // click lookup
@@ -59,5 +58,12 @@ function listfromrecommendations(recomms) {
             }
         });
         jQuery('#postcodebutton').on('click', postcodetocons);
+        
+        jQuery("#constituency2").append(listitems);
+        jQuery('#constituency2').on('change', updatePage);
+        if(window.location.href.indexOf("?") > -1) {
+            updatePage();
+        }
+
 
     }

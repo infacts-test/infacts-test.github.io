@@ -7,6 +7,9 @@
 		<title> InFacts How should I vote to stop a destructive Brexit? - InFacts</title>
 		<link href='https://fonts.googleapis.com/css?family=Pathway+Gothic+One|Open+Sans:400,400italic,700,700italic|Montserrat:400,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" media="all" href="http://danielpomlett.com/infacts/wp-content/themes/InFacts/style.css?v=4.6" />
+        <link rel="stylesheet" href="../awesomplete.css" />
+        <script src="../awesomplete.min.js" async></script>
+        <script src="../panoname.js" async></script>
 		<!--[if lt IE 9]>
 			<link rel="stylesheet" type="text/css" media="all" href="http://danielpomlett.com/infacts/wp-content/themes/InFacts/css/ie_sheet.css" />
 			<link rel="stylesheet" type="text/css" media="all" href="http://danielpomlett.com/infacts/wp-content/themes/InFacts/ie_styles.css" />
@@ -332,11 +335,18 @@ var give_scripts = {"ajaxurl":"http:\/\/danielpomlett.com\/infacts\/wp-admin\/ad
 			</article>
 		</div>
 	</div>
-	<div id="result" class="constPicker">
+	<div class="constPicker">
 		<div class="smallWidthWrapper">
-			<select name="constituency" class="select" id="constituency2">
+            <label>lookup by postcode</label>
+            <input id="postcode" type="text" class="form-control" placeholder="SW1A 0AA"></input>
+            <button  id="postcodebutton" type="button" class="form-control">lookup</button>
+            <label>or by constituency</label><style>.awesomplete {width:100%;}</style>
+            <div id="result">
+            <input id="constituency" type="text" name="constituency" placeholder="type constituency name" class="form-control" data-minchars=1  data-maxitems=20 data-autofirst />
+			<select name="constituency" class="select" id="constituency2" style="display:none">
 			  <option value="" disabled selected>Choose your constituency</option>
 			</select>
+			</div>
 			<div class="voteDisclaimer">Recommendations only for England and Wales.</div>
 			<div class="clear"></div>
 		</div>
@@ -436,6 +446,7 @@ var give_scripts = {"ajaxurl":"http:\/\/danielpomlett.com\/infacts\/wp-admin\/ad
 		</div>
 	</div>
 </article>
+<script src="../postcodeconstituency.js"></script>
 <script>
 var URL = 'http://danielpomlett.com/infacts/wp-content/themes/InFacts';
     if (window.location.href.indexOf('localhost') !== -1)
@@ -457,6 +468,83 @@ var UUP = "Ulster Unionist Party";
 var SPEAKER = "Speaker";
 
 var decisions;
+var updatePage = function() {
+    if(window.location.href.indexOf("?CON=") > -1){
+        var str = window.location.href;
+        var con = str.substr(str.indexOf("=") + 1);
+        var conFinal = con.replace(/%20/g, " ");
+        var constituency = conFinal;
+        var newUrl = str.replace(con, '');
+        var newUrl = newUrl.replace('?CON=', '');
+        history.pushState(null, null, newUrl);
+        jQuery('#constituency2 option').filter(function() { 
+            return (jQuery(this).text() == conFinal); //To select Blue
+        }).prop('selected', true);
+        document.getElementById("constituency").value=constituency;
+        document.getElementById("constituency2").value =constituency;
+    }else{
+       var constituency = jQuery('#constituency').val() || jQuery("#constituency2 option:selected").text();
+    }
+    var decision = getDecision(constituency);
+    if(decision[0] == 'Labour'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','labourCopy');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.labourLogo').css('display', 'block');
+    }else if(decision[0] == 'the Greens'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','greenCopy');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.greenLogo').css('display', 'block');
+    }else if(decision[0] == 'the Liberal Democrats'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','liberalDemocratCopy');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.libDemLogo').css('display', 'block');
+    }else if(decision[0] == 'Plaid Cymru'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','plaidCopy');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.plaidLogo').css('display', 'block');
+    }else if(decision[0] == 'the Conservatives'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','conservativeCopy');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.toryLogo').css('display', 'block');
+    }else if(decision[0] == 'the Greens or Liberal Democrats'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','neutral');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.greenLogo').css('display', 'block');
+        jQuery('.libDemLogo').css('display', 'block');
+    }else if(decision[0] == 'Labour or the Liberal Democrats'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','neutral');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.labourLogo').css('display', 'block');
+        jQuery('.libDemLogo').css('display', 'block');
+    }else if(decision[0] == 'the Conservatives or Liberal Democrats'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','neutral');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.toryLogo').css('display', 'block');
+        jQuery('.libDemLogo').css('display', 'block');
+    }else if(decision[0] == 'the Conservatives, Greens or Liberal Democrats'){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','neutral threeUp');
+        jQuery('.partyLogo').css('display', 'none');
+        jQuery('.toryLogo').css('display', 'block');
+        jQuery('.greenLogo').css('display', 'block');
+        jQuery('.libDemLogo').css('display', 'block');
+    }else if(decision[0] == ''){
+        getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
+        jQuery('#colourWrapper').attr('class','neutral');
+    }
+    jQuery('.shareResults').css('display', 'block');
+    jQuery("#votefor").show();
+    window.location.hash = '#result';
+};
+
 jQuery(document).ready(function() {
 	'use strict';
 
@@ -472,143 +560,7 @@ jQuery(document).ready(function() {
         });
     });
 
-	jQuery.getJSON(URL+"/js/recommendations.json", function(recomms) {
-	decisions = recomms;
-
-    var listitems = "";
-    jQuery.each(decisions, function(key, value) {
-        listitems += '<option>' + value.Constituency + '</option>';
-    });
-
-    jQuery("#constituency2").append(listitems);
-
-    var updatePage = function() {
-        if(window.location.href.indexOf("?CON=") > -1){
-            var str = window.location.href;
-            var con = str.substr(str.indexOf("=") + 1);
-            var conFinal = con.replace(/%20/g, " ");
-            var constituency = conFinal;
-            var newUrl = str.replace(con, '');
-            var newUrl = newUrl.replace('?CON=', '');
-            history.pushState(null, null, newUrl);
-            jQuery('#constituency2 option').filter(function() { 
-                return (jQuery(this).text() == conFinal); //To select Blue
-            }).prop('selected', true);
-        }else{
-    	   var constituency = jQuery("#constituency2 option:selected").text();
-        }
-        var decision = getDecision(constituency);
-        if(decision[0] == 'Labour'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','labourCopy');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.labourLogo').css('display', 'block');
-        }else if(decision[0] == 'the Greens'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','greenCopy');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.greenLogo').css('display', 'block');
-        }else if(decision[0] == 'the Liberal Democrats'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','liberalDemocratCopy');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.libDemLogo').css('display', 'block');
-        }else if(decision[0] == 'Plaid Cymru'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','plaidCopy');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.plaidLogo').css('display', 'block');
-        }else if(decision[0] == 'the Conservatives'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','conservativeCopy');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.toryLogo').css('display', 'block');
-        }else if(decision[0] == 'the Greens or Liberal Democrats'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','neutral');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.greenLogo').css('display', 'block');
-            jQuery('.libDemLogo').css('display', 'block');
-        }else if(decision[0] == 'Labour or the Liberal Democrats'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','neutral');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.labourLogo').css('display', 'block');
-            jQuery('.libDemLogo').css('display', 'block');
-        }else if(decision[0] == 'the Conservatives or Liberal Democrats'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','neutral');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.toryLogo').css('display', 'block');
-            jQuery('.libDemLogo').css('display', 'block');
-        }else if(decision[0] == 'the Conservatives, Greens or Liberal Democrats'){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','neutral threeUp');
-            jQuery('.partyLogo').css('display', 'none');
-            jQuery('.toryLogo').css('display', 'block');
-            jQuery('.greenLogo').css('display', 'block');
-            jQuery('.libDemLogo').css('display', 'block');
-        }else if(decision[0] == ''){
-            getResultCopy(decision[1],decision[0],decision[3],decision[4],decision[5],decision[6]);
-            jQuery('#colourWrapper').attr('class','neutral');
-        }
-        jQuery('.shareResults').css('display', 'block');
-        jQuery("#votefor").show();
-        window.location.hash = '#result';
-    };
-    jQuery('#constituency2').on('change', updatePage);
-    if(window.location.href.indexOf("?") > -1) {
-        updatePage();
-    }
-
-    // Geographic location detection
-    var geoCB = function(position) {
-        if (position.coords) {
-            var longitude = position.coords.longitude;
-            var latitude = position.coords.latitude;
-            var getURL = 'https://api.postcodes.io/postcodes?lon=' + longitude + "&lat=" + latitude;
-
-            jQuery.get(getURL, function(response) {
-                if (response && response.result) {
-                    // Just take first result for now
-                    console.log(response.result[0].parliamentary_constituency);
-                    jQuery('#constituency2').val(response.result[0].parliamentary_constituency);
-                    updatePage();
-                }
-            });
-        }
-    };
-/*
-    var postcodeLookup = function() {
-	console.log("Searching Postcode");
-    	var getURL = 'https://api.postcodes.io/postcodes?q=' + jQuery('#postcode').val().replace(/ /g,'');
-	jQuery.get(getURL, function(response) {
-		if (response && response.result) {
-			var const_lookup = response.result[0].parliamentary_constituency;
-			console.log(const_lookup);
-			jQuery('#constituency').val(const_lookup);
-			updatePage();
-		} else {
-			console.log("No Postcode results");
-		}
-	});
-    };
-
-    jQuery('#postcode').keypress(function (e) {
-	    if (e.which === 13) {
-		    postcodeLookup();
-	    }
-    });
-
-    function getLocation() {
-	console.log("Requesting Location");
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(geoCB);
-        }
-    }
-		getLocation();
-				//end of inner json.load */
-	});
+	jQuery.getJSON(URL+"/js/recommendations.json", listfromrecommendations);
 	//end of outer json.load
 	//});
 	//End of onLoad 
